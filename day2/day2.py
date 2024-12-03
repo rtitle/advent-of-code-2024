@@ -1,4 +1,6 @@
-def parse_reports(filename: str) -> list[list[int]]:
+from typing import List
+
+def parse_reports(filename: str) -> List[List[int]]:
     reports = []
     with open(filename, 'r') as file:
         for line in file.readlines():
@@ -9,38 +11,45 @@ def parse_reports(filename: str) -> list[list[int]]:
             reports.append(levels)
         return reports
 
-def part1(reports: list[list[int]]) -> int:
-    count = 0
+def is_valid(report: List[int]) -> bool:
+    safe = True
+    prev = None
+    increasing = None
+    for level in report:
+        if not prev:
+            prev = level
+            continue
+        diff = level - prev
+        prev = level
+        if increasing == None:
+            increasing = diff > 0
+        if increasing and diff >= 1 and diff <= 3:
+            continue
+        if not increasing and diff <= -1 and diff >= -3:
+            continue
+        safe = False
+        break
+    return safe
+
+def part1(reports: List[List[int]]) -> int:
+    return len(list(filter(is_valid, reports)))
+
+def part2(reports: List[List[int]]) -> int:
+    total = 0
     for report in reports:
-        safe = True
-        prev = None
-        increasing = None
-        has_skip = True
-        for cur in report:
-            if not prev:
-                prev = cur
-                continue
-            diff = cur - prev
-            # prev = cur
-            if increasing == None:
-                increasing = diff > 0
-            if increasing and diff >= 1 and diff <= 3:
-                prev = cur
-                continue
-            if not increasing and diff <= -1 and diff >= -3:
-                prev = cur
-                continue
-            if has_skip:
-                has_skip = False
-                continue
-            safe = False
-            break
-        if safe:
-            count += 1
-    return count
+        if is_valid(report):
+            total += 1
+            continue
+        for i in range(len(report)):
+            # copy of the list without the current element
+            sublist = report[:i] + report[i+1:]
+            if is_valid(sublist):
+                total += 1
+                break
+    return total
 
-
-filename = 'test-input.txt'
-filename = 'input.txt'
+# filename = 'day2/test-input.txt'
+filename = 'day2/input.txt'
 reports = parse_reports(filename)
 print(part1(reports))
+print(part2(reports))

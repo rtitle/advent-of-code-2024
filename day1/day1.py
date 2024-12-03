@@ -1,10 +1,11 @@
 from collections import defaultdict
+from typing import List, Tuple
 
-def read_file(filename: str) -> list[str]:
+def read_file(filename: str) -> List[str]:
     with open(filename, 'r') as file:
         return file.readlines()
 
-def partition(lines: list[str]) -> (list[int], list[int]):
+def partition(lines: List[str]) -> Tuple[List[int], List[int]]:
     left = []
     right = []
     for line in lines:
@@ -13,7 +14,7 @@ def partition(lines: list[str]) -> (list[int], list[int]):
         right.append(int(s[1]))
     return (left, right)
 
-def part1(lines: list[str]) -> int:
+def part1(lines: List[str]) -> int:
     (left, right) = partition(lines)
     left.sort()
     right.sort()
@@ -23,7 +24,7 @@ def part1(lines: list[str]) -> int:
         total += distance
     return total
 
-def part2(lines: list[str]) -> int:
+def part2(lines: List[str]) -> int:
     (left, right) = partition(lines)
     counts = defaultdict(int)
     for n in right:
@@ -34,8 +35,8 @@ def part2(lines: list[str]) -> int:
     return similarity
 
 
-file = 'input.txt'
-# file = 'test-input.txt'
+# file = 'day1/test-input.txt'
+file = 'day1/input.txt'
 lines = read_file(file)
 
 print(part1(lines))
