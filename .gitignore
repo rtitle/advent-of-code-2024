@@ -162,3 +162,5 @@ cython_debug/
 #.idea/
 
 input.txt
+parser.out
+parsetab.py
