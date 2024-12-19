@@ -76,40 +76,30 @@ def do_part_1(program: list[int], registers: dict[str, int]) -> Optional[str]:
     output = []
     short_circuited = False
     while pointer < len(program):
-        cache_key = build_cache_key(registers, pointer)
-        if cache_key in _cache:
-            short_circuited = True
-            break
-        _cache.add(cache_key)
         out, pointer = apply_instruction(program[pointer], program[pointer+1], registers, pointer)
         if out is not None:
             output.append(out)
     return ",".join(map(str, output)) if not short_circuited else None
 
-def build_cache_key(registers: dict[str, int], pointer: int) -> str:
-    s = str(pointer) + ";"
-    for k, v in registers.items():
-        s += f"{k}:{v};"
-    return s
+def do_part_2(program: list[int]) -> int:
+    res = []
+    do_part_2_rec(program, len(program)-1, 0, res)
+    return min(res)
 
-def do_part_2(program: list[int], registers: dict[str, int]) -> int:
-    for i in range(0, 100000000):
-        if i % 100000 == 0:
-            print(f"Trying {i}")
-        reg_copy = registers.copy()
-        reg_copy["A"] = i
-        s = do_part_1(program, reg_copy)
-        if s is not None:
-            new_program = [int(x) for x in s.split(",")]
-            # print(new_program)
-            if new_program == program:
-                return i
-    return 0
+def do_part_2_rec(program: list[int], index: int, n: int, results: list[int]) -> None:
+    program_trunc = ",".join(map(str, program[index:]))
+    for i in range(n, n+8):
+        registers = {"A": i, "B": 0, "C": 0}
+        res = do_part_1(program, registers)
+        if res == program_trunc:
+            if index == 0:
+                results.append(i)
+            else:
+                do_part_2_rec(program, index-1, i*8, results)
 
 filename = "day17/input.txt"
 registers, program = parse_input(filename)
-_cache = set()
 part1 = do_part_1(program, registers)
 print(part1)
-part2 = do_part_2(program, registers)
+part2 = do_part_2(program)
 print(part2)
