@@ -1,5 +1,4 @@
 from collections import defaultdict
-from itertools import permutations
 
 def parse_input(filename: str) -> list[int]:
     with open(filename, 'r') as file:
@@ -51,13 +50,7 @@ def get_changes(lines: list[int]) -> dict[tuple[int], int]:
 
 def do_part_2(lines: list[str]) -> int:
     changes = get_changes(lines)
-    max = 0
-    perms = permutations(range(-9, 10), 4)
-    for p in perms:
-        n = changes[tuple(p)]
-        if n > max:
-            max = n
-    return max + 1 # uhh why +1?
+    return max(changes.values())
 
 filename = "day22/input.txt"
 lines = parse_input(filename)
