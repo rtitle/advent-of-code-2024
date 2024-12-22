@@ -59,44 +59,54 @@ def move(start: str, direction: str, numeric: bool) -> Optional[str]:
     
     return None
 
-
-def find_paths(start: str, code: str, numeric: bool, path: list[str] = []) -> list[list[str]]:
-    if not code:
-        return [path]
+def find_paths(start: str, end: str, numeric: bool) -> list[str]:
+    if start == end:
+        return ["A"]
     
-    paths = []
-    directions = get_directions(start, code[0], numeric)
+    directions = get_directions(start, end, numeric)
+    res = []
     for d in directions:
         new_start = move(start, d, numeric)
         if new_start:
-            new_code = code[1:] if d == "A" else code
-            new_path = path + [d]
-            paths.extend(find_paths(new_start, new_code, numeric, new_path))
-
-    return paths
-
-def find_min_path(code: str, depth: int = 1) -> int:
-    if depth == 4:
-        return len(code)
-    
-    paths = find_paths("A", code, depth == 1)
-    res = math.inf
-    for p in paths:
-        path_len = find_min_path(p, depth + 1)
-        if path_len < res:
-            res = path_len
+            paths = [d + x for x in find_paths(new_start, end, numeric)]
+            res.extend(paths)
 
     return res
 
-def do_part_1(codes: list[str]) -> int:
+def min_for_code(code: str, depth: int, cache: dict[tuple[str, str, int], int], part1: bool) -> int:
+    if part1 and depth == 4 or not part1 and depth == 27:
+        return len(code)
+
     res = 0
+    for i in range(0, len(code)):
+        a = code[i-1] if i > 0 else "A"
+        b = code[i]
+        cache_key = (a, b, depth)
+        if cache_key in cache:
+            res += cache[cache_key]
+            continue
+
+        min = math.inf
+        expanded_paths = find_paths(a, b, depth == 1)
+        for path in expanded_paths:
+            c = min_for_code(path, depth+1, cache, part1)
+            if c < min:
+                min = c
+        
+        cache[cache_key] = min
+        res += min
+
+    return res
+
+def get_total_complexity(codes: list[str], part1: bool = True) -> int:
+    res = 0
+    cache = {}
     for c in codes:
-        path_len = find_min_path(c)
+        path_len = min_for_code(c, 1, cache, part1)
         path_num = int(c.replace("A", ""))
         complexity = path_len * path_num
         res += complexity
     return res
-
 
 filename = "day21/input.txt"
 _numeric = grid_to_dict(["789", "456", "123", " 0A"])
@@ -104,5 +114,7 @@ _directional = grid_to_dict([" ^A", "<v>"])
 _numeric_inverse = {v:k for k, v in _numeric.items()}
 _directional_inverse = {v:k for k, v in _directional.items()}
 codes = parse_input(filename)
-part1 = do_part_1(codes)
+part1 = get_total_complexity(codes)
 print(part1)
+part2 = get_total_complexity(codes, part1=False)
+print(part2)
