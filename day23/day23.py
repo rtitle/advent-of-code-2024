@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import permutations
 import networkx as nx
 
-def parse_input(filename: str) -> list[str]:
+def parse_input(filename: str) -> list[tuple[str]]:
     with open(filename, 'r') as file:
         lines = file.readlines()
     res = []
@@ -27,6 +27,16 @@ def do_part_1(graph: dict[str, list[str]]) -> int:
                     triples.add(frozenset([k, a, b]))
     return len(triples)
 
+def do_part_1_networkx(lines: list[tuple[str]]) -> int:
+    graph = nx.Graph()
+    graph.add_edges_from(lines)
+    cliques = nx.enumerate_all_cliques(graph)
+    valid_clique = lambda c: len(c) == 3 and any(x.startswith("t") for x in c)
+    return len(list(filter(valid_clique, cliques)))
+
+def do_part_2(graph: dict[str, list[str]]) -> str:
+    pass
+
 # I don't feel great about this
 def do_part_2_networkx(lines: list[tuple[str]]) -> str:
     graph = nx.Graph()
@@ -40,5 +50,7 @@ lines = parse_input(filename)
 graph = make_graph(lines)
 part1 = do_part_1(graph)
 print(part1)
-part2 = do_part_2_networkx(lines)
-print(part2)
+part1_networkx = do_part_1_networkx(lines)
+print(part1_networkx)
+part2_networkx = do_part_2_networkx(lines)
+print(part2_networkx)
